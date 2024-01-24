@@ -1,5 +1,9 @@
 import pygame
+from pygame.locals import *
+
+from obstaculo import Obstaculo
 from robot import Robot
+
 
 pygame.init()
 
@@ -11,7 +15,7 @@ menu = ["Jugar", "Salir"]
 select = 0
 
 # Ventana Principal
-ventana = pygame.display.set_mode((1280, 720))
+ventana = pygame.display.set_mode((1024,840))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Menu Principal")
 
@@ -19,7 +23,7 @@ pygame.display.set_caption("Menu Principal")
 jugando = True
 
 # Fondo de pantalla mapa
-background = pygame.image.load("images/mapa.png").convert()
+background = pygame.image.load("images/menu.jpg").convert()
 level1_image = pygame.image.load("images/level1.jpg").convert()
 
 # Musica de fondo principal
@@ -31,7 +35,7 @@ def level1_music():
     pygame.mixer.music.load("sonidos/level1.mp3")
     pygame.mixer.music.play(-1)
 
-# Metodo de menu principal
+# Método de menu principal
 def menu_principal():
     global playgame
     fuente_menu = pygame.font.Font("font/AncientModernTales-a7Po.ttf", 38)
@@ -39,38 +43,63 @@ def menu_principal():
     ventana.blit(background, [0, 0])  # Dibuja el fondo fuera del bucle del menú
 
     for i, opcion in enumerate(menu):
-        color = (0, 255, 0)
+        color = (213,213,213)
         if i == select:
-            texto = fuente_menu.render("> " + opcion, True, (255, 0, 0))
+            texto\
+                = fuente_menu.render("> " + opcion, True, (255, 0, 0))
         else:
             texto = fuente_menu.render(opcion, True, color)
 
-        # Se dibuja el menu en el centro de la pantalla
+        # Se dibuja el menú en el centro de la pantalla
         text_rect = texto.get_rect(center=(ventana.get_width() // 2, 200 + i * 50))
         ventana.blit(texto, text_rect)
 
 # Jugar
-# Jugar
 def play_game():
     global playgame
+    player1 = Robot()
+    ostaculo1 = Obstaculo()
     ventana.fill((0, 0, 0))
-    ventana.blit(level1_image, [0, 0])
     pygame.display.set_caption("Level 1")
     pygame.display.flip()
     level1_music()
-    player1 = Robot()
+
     while playgame:
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
+                playgame = False
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    player1.move_right()
-                if event.key == pygame.K_LEFT:
-                    player1.move_left()
-                if event.key == pygame.K_ESCAPE:
+                    player1.mover_derecha=True
+                elif event.key == pygame.K_LEFT:
+                    player1.mover_izquierda=True
+                elif event.key == pygame.K_UP:
+                    player1.mover_arriba=True
+                elif event.key == pygame.K_DOWN:
+                    player1.mover_abajo=True
+                elif event.key == pygame.K_ESCAPE:
                     playgame = False
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    player1.mover_derecha = False
+                elif event.key == pygame.K_LEFT:
+                    player1.mover_izquierda = False
+                elif event.key == pygame.K_UP:
+                    player1.mover_arriba = False
+                elif event.key == pygame.K_DOWN:
+                    player1.mover_abajo = False
 
+        player1.mover()
+        ventana.fill((0, 0, 0))
+        ventana.blit(player1.image1, player1.position)
+        if player1.mover_derecha:
+            ventana.blit(player1.image2, player1.position)
+        if player1.mover_izquierda:
+            ventana.blit(player1.image1, player1.position)
+        pygame.display.flip()
+        clock.tick(60)
 
-# Menu Principal
+# Menú Principal
 while jugando:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
