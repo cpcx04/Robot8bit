@@ -1,130 +1,156 @@
+# main.py
 import pygame
 from pygame.locals import *
-
 from sprites import *
 from config import *
 
-pygame.init()
 
-# Nueva ventana
-playgame = False
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font("font/AncientModernTales-a7Po.ttf", 38)
+        self.running = True
+        self.playing = False
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.block = pygame.sprite.LayeredUpdates()
+        self.player = None
+        self.intro_music_played = False
 
-# Opciones del menu
-menu = ["Jugar", "Salir"]
-select = 0
+    def createTileMap(self):
+        for i, row in enumerate(tilemap):
+            for j, column in enumerate(row):
+                x = j * TILESIZE
+                y = i * TILESIZE
 
-# Ventana Principal
-ventana = pygame.display.set_mode((1024,840))
-clock = pygame.time.Clock()
-pygame.display.set_caption("Menu Principal")
+                if column == "A":
+                    Tile(self, x, y, "esquinaizq.png")
+                elif column == "T":
+                    Tile(self, x, y, "top.png")
+                elif column == "R":
+                    Tile(self, x, y, "right.png")
+                elif column == "X":
+                    Tile(self, x, y, "bottom.png")
+                elif column == "C":
+                    Tile(self, x, y, "esquinader.png")
+                elif column == "L":
+                    Tile(self, x, y, "left.png")
+                elif column == "D":
+                    Tile(self, x, y, "izqdown.png")
+                elif column == "F":
+                    Tile(self, x, y, "derdown.png")
+                elif column == ".":
+                    Tile(self, x, y, "suelo.png")
+                elif column == "P":
+                    Obstaculo(self, x, y)
+                elif column == "B":
+                    Obstaculo(self, x, y)
 
-# Para el bucle
-jugando = True
+    def new(self):
+        self.playing = True
+        self.intro_music_played = False  # Reiniciamos para la música de intro
+        self.player = Player(self, 0, 0)
+        self.all_sprites.add(self.player)
+        self.createTileMap()
+        pygame.mixer.music.stop()
+        # Cargamos y reproducimos la nueva música (level1.mp3)
+        pygame.mixer.music.load("sonidos/level1.mp3")
+        pygame.mixer.music.play(-1)
 
-# Fondo de pantalla mapa
-background = pygame.image.load("images/menu.jpg").convert()
-level1_image = pygame.image.load("images/level1.jpg").convert()
+    def update(self):
+        self.all_sprites.update()
 
-# Musica de fondo principal
-pygame.mixer.music.load("sonidos/intro.mp3")
-pygame.mixer.music.play(-1)
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        self.all_sprites.draw(self.screen)
+        pygame.display.flip()
 
-# Carga de musica primer nivel
-def level1_music():
-    pygame.mixer.music.load("sonidos/level1.mp3")
-    pygame.mixer.music.play(-1)
+    def game_over(self):
+        pass
 
-# Método de menu principal
-def menu_principal():
-    global playgame
-    fuente_menu = pygame.font.Font("font/AncientModernTales-a7Po.ttf", 38)
+    def intro_screen(self):
+        print("Pantalla de introducción")
+        # Carga la imagen de fondo de la pantalla de inicio
+        background = pygame.image.load("images/menu.jpg").convert()
+        self.screen.blit(background, (0, 0))
 
-    ventana.blit(background, [0, 0])  # Dibuja el fondo fuera del bucle del menú
+        # Configuración del texto del menú
+        menu = ["Jugar", "Salir"]
+        text_color = (255, 255, 255)
+        selected_color = (255, 0, 0)
 
-    for i, opcion in enumerate(menu):
-        color = (213,213,213)
-        if i == select:
-            texto\
-                = fuente_menu.render("> " + opcion, True, (255, 0, 0))
-        else:
-            texto = fuente_menu.render(opcion, True, color)
+        # Dibujaoms el menú en el centro de la pantalla
+        menu_height = len(menu) * 50
+        menu_y = (WIN_HEIGHT - menu_height) // 2
+        option_index = 0
+        if not self.intro_music_played:
+            pygame.mixer.music.load("sonidos/intro.mp3")
+            pygame.mixer.music.play(-1)
+            self.intro_music_played = True
 
-        # Se dibuja el menú en el centro de la pantalla
-        text_rect = texto.get_rect(center=(ventana.get_width() // 2, 200 + i * 50))
-        ventana.blit(texto, text_rect)
+        while not self.playing:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    self.playing = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        option_index = (option_index - 1) % len(menu)
+                    elif event.key == pygame.K_DOWN:
+                        option_index = (option_index + 1) % len(menu)
+                    elif event.key == pygame.K_RETURN:
+                        if menu[option_index] == "Jugar":
+                            self.new()  # Cambia a la pantalla de juego
+                        elif menu[option_index] == "Salir":
+                            pygame.quit()
+                            self.playing = False
+                            self.running = False
 
-# Jugar
-def play_game():
-    global playgame
-    player1 = Robot()
-    ostaculo1 = Obstaculo()
-    ventana.fill((0, 0, 0))
-    pygame.display.set_caption("Level 1")
-    pygame.display.flip()
-    level1_music()
+            # Dibuja el menú con la opción seleccionada resaltada
+            for i, option in enumerate(menu):
+                text = self.font.render(option, True, selected_color if i == option_index else text_color)
+                text_rect = text.get_rect(center=(WIN_WIDTH // 2, menu_y + i * 50))
+                self.screen.blit(text, text_rect)
 
-    while playgame:
+            pygame.display.flip()
+            self.clock.tick(10)  # Controla la velocidad del bucle
+
+
+# Código principal
+if __name__ == "__main__":
+    game = Game()
+
+    while game.running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                playgame = False
+                game.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    player1.mover_derecha=True
+                    game.player.mover_derecha = True
                 elif event.key == pygame.K_LEFT:
-                    player1.mover_izquierda=True
+                    game.player.mover_izquierda = True
                 elif event.key == pygame.K_UP:
-                    player1.mover_arriba=True
+                    game.player.mover_arriba = True
                 elif event.key == pygame.K_DOWN:
-                    player1.mover_abajo=True
+                    game.player.mover_abajo = True
                 elif event.key == pygame.K_ESCAPE:
-                    playgame = False
+                    game.playing = False
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
-                    player1.mover_derecha = False
+                    game.player.mover_derecha = False
                 elif event.key == pygame.K_LEFT:
-                    player1.mover_izquierda = False
+                    game.player.mover_izquierda = False
                 elif event.key == pygame.K_UP:
-                    player1.mover_arriba = False
+                    game.player.mover_arriba = False
                 elif event.key == pygame.K_DOWN:
-                    player1.mover_abajo = False
+                    game.player.mover_abajo = False
 
-        player1.mover()
-        ventana.fill((0, 0, 0))
-        ventana.blit(player1.image1, player1.position)
-        if player1.mover_derecha:
-            ventana.blit(player1.image2, player1.position)
-        if player1.mover_izquierda:
-            ventana.blit(player1.image1, player1.position)
-        pygame.display.flip()
-        clock.tick(60)
+        if not game.playing:
+            game.intro_screen()
+        else:
+            game.update()
+            game.draw()
+            game.clock.tick(60)
 
-# Menú Principal
-while jugando:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            jugando = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                select = (select - 1) % len(menu)
-            elif event.key == pygame.K_DOWN:
-                select = (select + 1) % len(menu)
-            elif event.key == pygame.K_RETURN:
-                if select == 1:  # Comprueba si la opción seleccionada es "Salir" y si lo es, sale del juego
-                    pygame.quit()
-                elif select == 0:
-                    playgame = True
-                    jugando = False
-                    pygame.mixer.music.fadeout(1000)
-                    play_game()
-
-    if not playgame:
-        menu_principal()
-    else:
-        play_game()
-
-    pygame.display.flip()
-    clock.tick(60)
-
-# Cerrar el juego
-pygame.mixer.music.stop()  # Detener la música al salir del bucle
-pygame.quit()
+    pygame.quit()
