@@ -1,5 +1,5 @@
 import pygame
-
+from config import *
 player1_image_left = pygame.image.load("images/3397.png")
 player1_image_left = pygame.transform.scale(player1_image_left,(80,80))
 
@@ -31,4 +31,12 @@ class Robot:
             self.position[1] -= self.speed
 
         if self.mover_abajo:
-            self.position[1] += self.speed
+           self.position[1] += self.speed
+
+#pygame.sprite.Sprite#
+class Obstaculo():
+    def __init__(self):
+        #self._layer = BLOCK_LAYER
+        self.position = [100, 100]
+        self.size = [20, 20]
+        #pygame.sprite.Sprite.__init__(self,self)

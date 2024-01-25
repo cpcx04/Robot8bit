@@ -1,9 +1,8 @@
 import pygame
 from pygame.locals import *
 
-from obstaculo import Obstaculo
-from robot import Robot
-
+from sprites import *
+from config import *
 
 pygame.init()
 
