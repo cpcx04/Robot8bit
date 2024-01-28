@@ -8,6 +8,7 @@ player_image_left = pygame.transform.scale(player_image_left, (80, 80))
 player_image_right = pygame.image.load("images/3397_derecha.png")
 player_image_right = pygame.transform.scale(player_image_right, (80, 80))
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -23,9 +24,11 @@ class Player(pygame.sprite.Sprite):
         self.mover_abajo = False
 
     def update(self):
+
         if self.mover_derecha:
             self.rect.x += PLAYER_SPEED
-            self.image = player_image_right  # Cambia la imagen a la derecha
+            self.image = player_image_right
+            # Cambia la imagen a la derecha
         elif self.mover_izquierda:
             self.rect.x -= PLAYER_SPEED
             self.image = player_image_left  # Cambia la imagen a la izquierda
@@ -37,13 +40,34 @@ class Player(pygame.sprite.Sprite):
 
     def mover(self):
         if self.mover_derecha:
-            self.position[0] += self.speed
+            self.rect.x += PLAYER_SPEED
+            self.collide_block('x')
         if self.mover_izquierda:
-            self.position[0] -= self.speed
+            self.rect.x -= PLAYER_SPEED
+            self.collide_block('x')
         if self.mover_arriba:
-            self.position[1] -= self.speed
+            self.rect.y -= PLAYER_SPEED
+            self.collide_block('y')
         if self.mover_abajo:
-            self.position[1] += self.speed
+            self.rect.y += PLAYER_SPEED
+            self.collide_block('y')
+
+    def collide_block(self, direction):
+        if direction == "x":
+            hits = pygame.sprite.spritecollide(self, self.game.block, False)
+            if hits:
+                if self.mover_derecha:
+                    self.rect.right = hits[0].rect.left
+                elif self.mover_izquierda:
+                    self.rect.left = hits[0].rect.right
+        elif direction == "y":
+            hits = pygame.sprite.spritecollide(self, self.game.block, False)
+            if hits:
+                if self.mover_abajo:
+                    self.rect.bottom = hits[0].rect.top
+                elif self.mover_arriba:
+                    self.rect.top = hits[0].rect.bottom
+
 
 # Clase Obstaculo
 class Tile(pygame.sprite.Sprite):
@@ -51,7 +75,7 @@ class Tile(pygame.sprite.Sprite):
         self.game = game
         self.groups = self.game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
-        self._layer=BLOCK_LAYER
+        self._layer = BLOCK_LAYER
         self.x = x
         self.y = y
         self.width = TILESIZE
@@ -60,6 +84,7 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+
 
 # Clase Obstaculo (actualizada)
 class Obstaculo(Tile):
