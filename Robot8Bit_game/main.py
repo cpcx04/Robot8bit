@@ -24,24 +24,8 @@ class Game:
                 x = j * TILESIZE
                 y = i * TILESIZE
 
-                if column == "A":
-                    Tile(self, x, y, "esquinaizq.png")
-                elif column == "T":
-                    Tile(self, x, y, "top.png")
-                elif column == "R":
-                    Tile(self, x, y, "right.png")
-                elif column == "X":
-                    Tile(self, x, y, "bottom.png")
-                elif column == "C":
-                    Tile(self, x, y, "esquinader.png")
-                elif column == "L":
-                    Tile(self, x, y, "left.png")
-                elif column == "D":
-                    Tile(self, x, y, "izqdown.png")
-                elif column == "F":
-                    Tile(self, x, y, "derdown.png")
-                elif column == ".":
-                    Tile(self, x, y, "suelo.png")
+                if column == ".":
+                    Tile(self, x, y, "suelo.jpg")
                 elif column == "P":
                     Obstaculo(self, x, y)
                 elif column == "B":
@@ -135,6 +119,7 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_DOWN:
                     game.player.mover_abajo = True
                 elif event.key == pygame.K_ESCAPE:
+                    pygame.quit()
                     game.playing = False
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:

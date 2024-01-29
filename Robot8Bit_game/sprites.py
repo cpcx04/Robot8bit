@@ -3,10 +3,10 @@ import pygame
 from config import *
 
 player_image_left = pygame.image.load("images/3397.png")
-player_image_left = pygame.transform.scale(player_image_left, (80, 80))
+player_image_left = pygame.transform.scale(player_image_left, (120, 120))
 
 player_image_right = pygame.image.load("images/3397_derecha.png")
-player_image_right = pygame.transform.scale(player_image_right, (80, 80))
+player_image_right = pygame.transform.scale(player_image_right, (120, 120))
 
 
 class Player(pygame.sprite.Sprite):
