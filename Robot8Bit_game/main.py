@@ -27,15 +27,17 @@ class Game:
                 if column == ".":
                     Tile(self, x, y, "suelo.jpg")
                 elif column == "P":
-                    Obstaculo(self, x, y)
+                    self.player = Player(self, x, y)
+                    self.all_sprites.add(self.player)
+                    Tile(self, x, y, "suelo.jpg")
                 elif column == "B":
-                    Obstaculo(self, x, y)
+                    obstacle = Obstaculo(self, x, y)
+                    self.block.add(obstacle)
+                    self.all_sprites.add(obstacle)
 
     def new(self):
         self.playing = True
         self.intro_music_played = False  # Reiniciamos para la música de intro
-        self.player = Player(self, 0, 0)
-        self.all_sprites.add(self.player)
         self.createTileMap()
         pygame.mixer.music.stop()
         # Cargamos y reproducimos la nueva música (level1.mp3)
