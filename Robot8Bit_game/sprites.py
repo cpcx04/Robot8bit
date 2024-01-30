@@ -3,31 +3,31 @@ import pygame
 from config import *
 
 player_image_stanBy = pygame.image.load("images/front_player.png")
-player_image_stanBy = pygame.transform.scale(player_image_stanBy, (54,54))
+player_image_stanBy = pygame.transform.scale(player_image_stanBy, (44,44))
 
 player_image_left_stop = pygame.image.load("images/left_stop.png")
-player_image_left_stop = pygame.transform.scale(player_image_left_stop, (54,54))
+player_image_left_stop = pygame.transform.scale(player_image_left_stop, (44,44))
 
 player_image_left_run = pygame.image.load("images/left_run.png")
-player_image_left_run = pygame.transform.scale(player_image_left_run, (54,54))
+player_image_left_run = pygame.transform.scale(player_image_left_run, (44,44))
 
 player_image_right_stop = pygame.image.load("images/right_stop.png.")
-player_image_right_stop = pygame.transform.scale(player_image_right_stop, (54,54))
+player_image_right_stop = pygame.transform.scale(player_image_right_stop, (44,44))
 
 player_image_right_run = pygame.image.load("images/right_run.png")
-player_image_right_run = pygame.transform.scale(player_image_right_run, (54,54))
+player_image_right_run = pygame.transform.scale(player_image_right_run, (44,44))
 
 player_image_bottom_run = pygame.image.load("images/front_run.png")
-player_image_bottom_run = pygame.transform.scale(player_image_bottom_run, (54,54))
+player_image_bottom_run = pygame.transform.scale(player_image_bottom_run, (44,44))
 
 player_image_bottom_stop = pygame.image.load("images/front_player.png")
-player_image_bottom_stop = pygame.transform.scale(player_image_bottom_stop, (54,54))
+player_image_bottom_stop = pygame.transform.scale(player_image_bottom_stop, (44,44))
 
 player_image_up_run = pygame.image.load("images/up_run.png")
-player_image_up_run = pygame.transform.scale(player_image_up_run, (54,54))
+player_image_up_run = pygame.transform.scale(player_image_up_run, (44,44))
 
 player_image_up_stop = pygame.image.load("images/up_stop.png")
-player_image_up_stop = pygame.transform.scale(player_image_up_stop, (54,54))
+player_image_up_stop = pygame.transform.scale(player_image_up_stop, (44,44))
 
 
 class Healthbar(pygame.sprite.Sprite):
