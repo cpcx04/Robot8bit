@@ -31,34 +31,53 @@ player_image_up_stop = pygame.transform.scale(player_image_up_stop, (44,44))
 
 
 class Healthbar(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, max_hp):
+
+    heart_image = pygame.image.load("images/corazon.png")
+    heart_image = pygame.transform.scale(heart_image, (20, 20))
+
+    def __init__(self, x, y, width, height, max_health):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((w, h))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect()
-        self._layer = HEALTHBAR_LAYER
         self.x = x
         self.y = y
-        self.w = w
-        self.h = h
-        self.hp = max_hp
-        self.max_hp = max_hp
+        self.width = width
+        self.height = height
+        self.max_health = max_health
+        self.current_health = max_health
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.heart_image = pygame.image.load("images/corazon.png")
+        self.heart_image = pygame.transform.scale(self.heart_image, (20, 20))
+
+
+    def update(self, current_health):
+        self.current_health = current_health
+        self.image.fill((0, 0, 0, 0))
+        pygame.draw.rect(self.image, (255, 0, 0), (0, 0, self.width, self.height), border_radius=10)
+        filled_width = int(self.current_health / self.max_health * self.width)
+        pygame.draw.rect(self.image, (0, 255, 0), (0, 0, filled_width, self.height), border_radius=10)
+        pygame.draw.rect(self.heart_image, (255,0,0), (0, 0, filled_width, self.height))
+
 
     def draw(self, surface):
-        ratio = self.hp / self.max_hp
-        pygame.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
-        pygame.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
+        pygame.sprite.Sprite.draw(self, surface)
+        surface.blit(self.heart_image, (self.rect.x + self.width + 5, self.rect.y))
+
+
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.game = game
+        self.current_health = 300
         self._layer = PLAYER_LAYER
         self.image = player_image_stanBy
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.healt_bar = Healthbar(250,200,300,40,100)
+        self.healt_bar = Healthbar(10,10,300,20,300)
         self.game.all_sprites.add(self.healt_bar)
         self.mover_derecha = False
         self.mover_izquierda = False
@@ -66,8 +85,9 @@ class Player(pygame.sprite.Sprite):
         self.mover_abajo = False
 
 
-    def update(self):
+    def update(self, *args):
         self.mover()
+        self.healt_bar.update(self.current_health)
 
     def mover(self):
         if self.mover_derecha:
@@ -90,23 +110,27 @@ class Player(pygame.sprite.Sprite):
             self.image = player_image_stanBy
 
     def collide_block(self, direction):
+        vida = self.current_health
         if direction == "x":
             hits = pygame.sprite.spritecollide(self, self.game.block, False)
             if hits:
                 if self.mover_derecha:
                     self.rect.right = hits[0].rect.left
+                    self.current_health = self.current_health -1
                 elif self.mover_izquierda:
                     self.rect.left = hits[0].rect.right
+                    self.current_health = self.current_health - 1
         elif direction == "y":
             hits = pygame.sprite.spritecollide(self, self.game.block, False)
             if hits:
                 if self.mover_abajo:
                     self.rect.bottom = hits[0].rect.top
+                    self.current_health = self.current_health - 1
                 elif self.mover_arriba:
                     self.rect.top = hits[0].rect.bottom
+                    self.current_health = self.current_health - 1
 
 
-# Clase Obstaculo
 class Tile(pygame.sprite.Sprite):
     def __init__(self, game, x, y, image_path):
         self.game = game
@@ -123,9 +147,7 @@ class Tile(pygame.sprite.Sprite):
         self.rect.y = self.y
 
 
-# Clase Obstaculo (actualizada)
 class Obstaculo(Tile):
     def __init__(self, game, x, y):
         super().__init__(game, x, y, "muro.png")
 
-        # Puedes agregar más atributos si es necesario

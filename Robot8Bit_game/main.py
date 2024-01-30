@@ -37,15 +37,19 @@ class Game:
 
     def new(self):
         self.playing = True
-        self.intro_music_played = False  # Reiniciamos para la música de intro
+        self.intro_music_played = False
         self.createTileMap()
         pygame.mixer.music.stop()
-        # Cargamos y reproducimos la nueva música (level1.mp3)
         pygame.mixer.music.load("sonidos/level1.mp3")
         pygame.mixer.music.play(-1)
 
     def update(self):
-        self.all_sprites.update()
+        vida = self.player.current_health
+        if vida == 0:
+            self.game_over()
+        else:
+            self.player.update()
+            self.all_sprites.update(self.player.current_health)
 
     def draw(self):
         self.screen.fill((0, 0, 0))
@@ -53,11 +57,36 @@ class Game:
         pygame.display.flip()
 
     def game_over(self):
-        pass
+        self.playing = False
+        background = pygame.image.load("images/game_over.jpg").convert()
+        self.screen.blit(background, (0, 0))
+        message = self.font.render("Press any key to go to the main menu", True, (0, 0, 0))
+        message_rect = message.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT - 50))
+        self.screen.blit(message, message_rect)
+
+        pygame.display.flip()
+
+        # Wait for a key press
+        key_pressed = False
+        while not key_pressed:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    key_pressed = True
+                elif event.type == pygame.KEYDOWN:
+                    self.reset_game()
+                    self.intro_screen()
+                    key_pressed = True
+
+            self.clock.tick(5)
+
+    def reset_game(self):
+        self.intro_music_played = False
+        self.all_sprites.empty()
+        self.block.empty()
+        self.createTileMap()
 
     def intro_screen(self):
-        print("Pantalla de introducción")
-        # Carga la imagen de fondo de la pantalla de inicio
         background = pygame.image.load("images/menu.jpg").convert()
         self.screen.blit(background, (0, 0))
 
@@ -75,7 +104,7 @@ class Game:
             pygame.mixer.music.play(-1)
             self.intro_music_played = True
 
-        while not self.playing:
+        while not self.playing and self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -93,14 +122,13 @@ class Game:
                             self.playing = False
                             self.running = False
 
-            # Dibuja el menú con la opción seleccionada resaltada
             for i, option in enumerate(menu):
                 text = self.font.render(option, True, selected_color if i == option_index else text_color)
                 text_rect = text.get_rect(center=(WIN_WIDTH // 2, menu_y + i * 50))
                 self.screen.blit(text, text_rect)
 
             pygame.display.flip()
-            self.clock.tick(10)  # Controla la velocidad del bucle
+            self.clock.tick(60)
 
 
 # Código principal
