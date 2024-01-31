@@ -34,6 +34,12 @@ class Game:
                     obstacle = Obstaculo(self, x, y)
                     self.block.add(obstacle)
                     self.all_sprites.add(obstacle)
+                elif column == "E":
+                    bomba = Bomba(self, 10, x, y)
+                    self.block.add(bomba)
+                    self.all_sprites.add(bomba)
+                    Tile(self, x, y, "suelo.jpg")
+
 
     def new(self):
         self.playing = True
@@ -84,6 +90,7 @@ class Game:
         self.intro_music_played = False
         self.all_sprites.empty()
         self.block.empty()
+        self.all_sprites.remove(self.player)
         self.createTileMap()
 
     def intro_screen(self):
