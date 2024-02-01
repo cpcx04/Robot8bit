@@ -18,6 +18,7 @@ class Game:
         self.playing = False
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.block = pygame.sprite.LayeredUpdates()
+        self.player_layer = pygame.sprite.LayeredUpdates()
         self.player = None
         self.intro_music_played = False
 
@@ -77,6 +78,7 @@ class Game:
 
     def game_over(self):
         self.playing = False
+
         background = pygame.image.load("images/game_over.jpg").convert()
         self.screen.blit(background, (0, 0))
         message = self.font.render("Press any key to go to the main menu", True, (0, 0, 0))
@@ -101,10 +103,14 @@ class Game:
 
     def reset_game(self):
         self.intro_music_played = False
+
         self.all_sprites.empty()
         self.block.empty()
-        self.all_sprites.remove(self.all_sprites)
+        self.player_layer.empty()
         self.createTileMap()
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load("sonidos/level1.mp3")
+        pygame.mixer.music.play(-1)
 
     def intro_screen(self):
         background = pygame.image.load("images/menu.jpg").convert()
