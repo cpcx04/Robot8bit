@@ -53,6 +53,7 @@ class Player(pygame.sprite.Sprite):
         self.healt_bar.update(self.current_health)
 
     def mover(self):
+        
         if self.mover_derecha:
             self.rect.x += PLAYER_SPEED
             self.image = player_image_right_run

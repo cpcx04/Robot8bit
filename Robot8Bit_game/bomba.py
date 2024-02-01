@@ -26,7 +26,9 @@ class Bomba(pygame.sprite.Sprite):
             self.explotar()
 
     def explotar(self):
-        hits = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
+        affected_blocks = []  # Almacena las posiciones de los bloques afectados
+        hits = pygame.sprite.spritecollide(self, self.game.block, False)
+
         for hit in hits:
             if isinstance(hit, Player):
                 distancia = pygame.math.Vector2(hit.rect.centerx - self.rect.centerx,
@@ -35,6 +37,12 @@ class Bomba(pygame.sprite.Sprite):
                     print("AUCH ME HA DADO")
                     hit.current_health -= self.damage
             elif isinstance(hit, Obstaculo):
-                hit.kill()
-                Tile(self.game, hit.rect.x, hit.rect.y, "suelo.jpg")
+                affected_blocks.append((hit.rect.x, hit.rect.y))
+
+        for block_pos in affected_blocks:
+            # Crear un nuevo Tile solo si no hay otro sprite en esa posición
+            if not any(sprite.rect.x == block_pos[0] and sprite.rect.y == block_pos[1] for sprite in
+                       self.game.all_sprites):
+                Tile(self.game, block_pos[0], block_pos[1], "suelo.jpg")
+
         self.kill()

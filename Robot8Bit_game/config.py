@@ -7,23 +7,8 @@ PLAYER_LAYER=2
 BOMBA_LAYER = 2
 HEALTHBAR_LAYER=2
 BLOCK_LAYER = 1
+PLAYER_HEALTH=100
 
 TIEMPO_DE_EXPLOSION = 60
 DISTANCIA_DE_EXPLOSION = 100
 
-tilemap= [
-    'BBBBBBBBBBBBBBBB',
-    'B...OOO........B',
-    'B..............B',
-    'B..............B',
-    'B..............B',
-    'B....OOO..OOOOOB',
-    'B....O.O..O....B',
-    'B....O.O..O....B',
-    'B....O.O..O....B',
-    'B....OPOOOO....B',
-    'B....OE........B',
-    'B....OOOOOO....B',
-    'BBBBBBBBBBBBBBBB',
-    'BBBBBBBBBBBBBBBB',
-]

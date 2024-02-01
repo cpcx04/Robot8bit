@@ -1,11 +1,12 @@
 # main.py
+import random
+
 import pygame
 from bomba import  *
 from obstaculo import *
 from player import *
 from config import *
 from healthbar import *
-
 
 class Game:
     def __init__(self):
@@ -21,32 +22,38 @@ class Game:
         self.intro_music_played = False
 
     def createTileMap(self):
-        for i, row in enumerate(tilemap):
-            for j, column in enumerate(row):
+        with open("mapa.txt", "r") as file:
+            lines = file.readlines()
+        map_height = len(lines)
+        map_width = len(lines[0].strip())
+        random_x = random.randint(0, map_width - 1)
+        random_y = random.randint(0, map_height - 1)
+
+        for i, line in enumerate(lines):
+            for j, char in enumerate(line.strip()):
                 x = j * TILESIZE
                 y = i * TILESIZE
 
-                if column == ".":
-                    Tile(self, x, y, "suelo.jpg")
-                elif column == "P":
-                    self.player = Player(self, x, y)
-                    self.all_sprites.add(self.player)
-                    Tile(self, x, y, "suelo.jpg")
-                elif column == "B":
+                if char == "P":
+                        self.player = Player(self, x, y)
+                        self.all_sprites.add(self.player)
+                        Tile(self, x, y, "suelo.jpg")
+                if char == ".":
+
+                        Tile(self, x, y, "suelo.jpg")
+                elif char == "B":
                     obstacle = Obstaculo(self, x, y)
                     self.block.add(obstacle)
                     self.all_sprites.add(obstacle)
-                elif column == "O":
+                elif char == "O":
                     muro = Muro(self, x, y)
                     self.block.add(muro)
                     self.all_sprites.add(muro)
-                elif column == "E":
+                elif char == "E":
                     bomba = Bomba(self, 10, x, y)
                     self.block.add(bomba)
                     self.all_sprites.add(bomba)
                     Tile(self, x, y, "suelo.jpg")
-
-
     def new(self):
         self.playing = True
         self.intro_music_played = False
@@ -56,12 +63,13 @@ class Game:
         pygame.mixer.music.play(-1)
 
     def update(self):
-        vida = self.player.current_health
-        if vida == 0:
-            self.game_over()
-        else:
-            self.player.update()
-            self.all_sprites.update(self.player.current_health)
+        if self.player:
+            vida = self.player.current_health
+            if vida == 0:
+                self.game_over()
+            else:
+                self.player.update()
+                self.all_sprites.update(self.player.current_health)
 
     def draw(self):
         self.all_sprites.draw(self.screen)
@@ -147,6 +155,7 @@ if __name__ == "__main__":
 
     while game.running:
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 game.running = False
             elif event.type == pygame.KEYDOWN:
