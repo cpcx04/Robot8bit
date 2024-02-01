@@ -1,8 +1,10 @@
 # main.py
 import pygame
-from pygame.locals import *
-from sprites import *
+from bomba import  *
+from obstaculo import *
+from player import *
 from config import *
+from healthbar import *
 
 
 class Game:
@@ -34,6 +36,10 @@ class Game:
                     obstacle = Obstaculo(self, x, y)
                     self.block.add(obstacle)
                     self.all_sprites.add(obstacle)
+                elif column == "O":
+                    muro = Muro(self, x, y)
+                    self.block.add(muro)
+                    self.all_sprites.add(muro)
                 elif column == "E":
                     bomba = Bomba(self, 10, x, y)
                     self.block.add(bomba)
@@ -58,7 +64,6 @@ class Game:
             self.all_sprites.update(self.player.current_health)
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
@@ -84,25 +89,23 @@ class Game:
                     self.intro_screen()
                     key_pressed = True
 
-            self.clock.tick(5)
+            self.clock.tick(60)
 
     def reset_game(self):
         self.intro_music_played = False
         self.all_sprites.empty()
         self.block.empty()
-        self.all_sprites.remove(self.player)
+        self.all_sprites.remove(self.all_sprites)
         self.createTileMap()
 
     def intro_screen(self):
         background = pygame.image.load("images/menu.jpg").convert()
         self.screen.blit(background, (0, 0))
 
-        # Configuración del texto del menú
         menu = ["Jugar", "Salir"]
         text_color = (255, 255, 255)
         selected_color = (255, 0, 0)
 
-        # Dibujaoms el menú en el centro de la pantalla
         menu_height = len(menu) * 50
         menu_y = (WIN_HEIGHT - menu_height) // 2
         option_index = 0
@@ -123,7 +126,7 @@ class Game:
                         option_index = (option_index + 1) % len(menu)
                     elif event.key == pygame.K_RETURN:
                         if menu[option_index] == "Jugar":
-                            self.new()  # Cambia a la pantalla de juego
+                            self.new()
                         elif menu[option_index] == "Salir":
                             pygame.quit()
                             self.playing = False

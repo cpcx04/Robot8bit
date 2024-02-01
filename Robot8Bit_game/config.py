@@ -1,7 +1,7 @@
 WIN_WIDTH =1024
 WIN_HEIGHT=840
 TILESIZE = 64
-PLAYER_SPEED=2.5
+PLAYER_SPEED=2
 
 PLAYER_LAYER=2
 BOMBA_LAYER = 2
@@ -13,17 +13,17 @@ DISTANCIA_DE_EXPLOSION = 100
 
 tilemap= [
     'BBBBBBBBBBBBBBBB',
-    'B...BBB........B',
+    'B...OOO........B',
     'B..............B',
     'B..............B',
     'B..............B',
-    'B....BBB..BBBBBB',
-    'B....B.B..B....B',
-    'B....B.B..B....B',
-    'B....B.B..B....B',
-    'B....BPBBBB....B',
-    'B....BE........B',
-    'B....BBBBBB....B',
+    'B....OOO..OOOOOB',
+    'B....O.O..O....B',
+    'B....O.O..O....B',
+    'B....O.O..O....B',
+    'B....OPOOOO....B',
+    'B....OE........B',
+    'B....OOOOOO....B',
     'BBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBB',
 ]
