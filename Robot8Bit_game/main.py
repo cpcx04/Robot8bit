@@ -2,11 +2,16 @@
 import random
 
 import pygame
-from bomba import  *
+
+from armadura import Armadura
+from bomba import  Bomba
+from diamantes import Diamante
 from obstaculo import *
-from player import *
+from player import Player
 from config import *
 from healthbar import *
+from pocion import Pocion
+
 
 class Game:
     def __init__(self):
@@ -25,10 +30,10 @@ class Game:
     def createTileMap(self):
         with open("mapa.txt", "r") as file:
             lines = file.readlines()
+
         map_height = len(lines)
         map_width = len(lines[0].strip())
-        random_x = random.randint(0, map_width - 1)
-        random_y = random.randint(0, map_height - 1)
+        bomb_positions = []  # Lista para almacenar posiciones válidas para bombas
 
         for i, line in enumerate(lines):
             for j, char in enumerate(line.strip()):
@@ -36,25 +41,57 @@ class Game:
                 y = i * TILESIZE
 
                 if char == "P":
-                        self.player = Player(self, x, y)
-                        self.all_sprites.add(self.player)
-                        Tile(self, x, y, "suelo.jpg")
-                if char == ".":
-
-                        Tile(self, x, y, "suelo.jpg")
+                    self.player = Player(self, x, y)
+                    self.all_sprites.add(self.player)
+                    Tile(self, x, y, "suelo.jpg")
+                elif char == ".":
+                    Tile(self, x, y, "suelo.jpg")
+                    bomb_positions.append((x, y))  # Añade la posición a la lista
                 elif char == "B":
-                    obstacle = Obstaculo(self, x, y)
-                    self.block.add(obstacle)
-                    self.all_sprites.add(obstacle)
+                    obstaculo = Obstaculo(self, x, y)
+                    self.block.add(obstaculo)
+                    self.all_sprites.add(obstaculo)
                 elif char == "O":
                     muro = Muro(self, x, y)
                     self.block.add(muro)
                     self.all_sprites.add(muro)
                 elif char == "E":
-                    bomba = Bomba(self, 10, x, y)
-                    self.block.add(bomba)
-                    self.all_sprites.add(bomba)
                     Tile(self, x, y, "suelo.jpg")
+
+        # Genera cuatro bombas aleatorias entre las posiciones de "."
+        num_bombas = 1
+        for _ in range(min(num_bombas, len(bomb_positions))):
+            random_position = random.choice(bomb_positions)
+            bomb_positions.remove(random_position)
+            x, y = random_position
+            bomba = Bomba(self, 10, x, y)
+            self.block.add(bomba)
+            self.all_sprites.add(bomba)
+        num_diamantes = 1
+        for _ in range(min(num_diamantes, len(bomb_positions))):
+            random_position = random.choice(bomb_positions)
+            bomb_positions.remove(random_position)
+            x, y = random_position
+            diamante = Diamante(self, x, y)
+            self.block.add(diamante)
+            self.all_sprites.add(diamante)
+
+        num_armaduras = 1
+        for _ in range(min(num_armaduras, len(bomb_positions))):
+            random_position = random.choice(bomb_positions)
+            bomb_positions.remove(random_position)
+            x, y = random_position
+            armadura = Armadura(self, x, y)
+            self.block.add(armadura)
+            self.all_sprites.add(armadura)
+        num_pociones = 1
+        for _ in range(min(num_pociones, len(bomb_positions))):
+            random_position = random.choice(bomb_positions)
+            bomb_positions.remove(random_position)
+            x, y = random_position
+            pocion = Pocion(self, x, y)
+            self.block.add(pocion)
+            self.all_sprites.add(pocion)
     def new(self):
         self.playing = True
         self.intro_music_played = False
@@ -161,7 +198,6 @@ if __name__ == "__main__":
 
     while game.running:
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 game.running = False
             elif event.type == pygame.KEYDOWN:
@@ -176,6 +212,12 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     game.playing = False
+                elif event.key == pygame.K_b:
+                    if game.player.inventory["Bomba"] > 0:
+                        bomba = Bomba(game, 10, game.player.rect.x, game.player.rect.y)
+                        game.block.add(bomba)
+                        game.all_sprites.add(bomba)
+                        game.player.inventory["Bomba"] -= 1
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     game.player.mover_derecha = False
