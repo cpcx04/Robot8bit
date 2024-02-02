@@ -33,7 +33,7 @@ class Game:
 
         map_height = len(lines)
         map_width = len(lines[0].strip())
-        bomb_positions = []  # Lista para almacenar posiciones válidas para bombas
+        bomb_positions = []
 
         for i, line in enumerate(lines):
             for j, char in enumerate(line.strip()):
@@ -43,10 +43,10 @@ class Game:
                 if char == "P":
                     self.player = Player(self, x, y)
                     self.all_sprites.add(self.player)
-                    Tile(self, x, y, "suelo.jpg")
+                    Tile(self, x, y, "arena.jpg")
                 elif char == ".":
-                    Tile(self, x, y, "suelo.jpg")
-                    bomb_positions.append((x, y))  # Añade la posición a la lista
+                    Tile(self, x, y, "arena.jpg")
+                    bomb_positions.append((x, y))
                 elif char == "B":
                     obstaculo = Obstaculo(self, x, y)
                     self.block.add(obstaculo)
@@ -56,9 +56,7 @@ class Game:
                     self.block.add(muro)
                     self.all_sprites.add(muro)
                 elif char == "E":
-                    Tile(self, x, y, "suelo.jpg")
-
-        # Genera cuatro bombas aleatorias entre las posiciones de "."
+                    Tile(self, x, y, "arena.jpg")
         num_bombas = 1
         for _ in range(min(num_bombas, len(bomb_positions))):
             random_position = random.choice(bomb_positions)

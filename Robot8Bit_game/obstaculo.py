@@ -18,7 +18,7 @@ class Tile(pygame.sprite.Sprite):
 
 class Obstaculo(Tile):
     def __init__(self, game, x, y):
-        super().__init__(game, x, y, "muro.png")
+        super().__init__(game, x, y, "agua.jpg")
 class Muro(Tile):
     def __init__(self, game, x, y):
         super().__init__(game, x, y, "hielo.jpg")

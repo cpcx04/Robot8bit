@@ -59,7 +59,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, *args):
         self.mover()
         self.healt_bar.update(self.current_health)
-        inventory_text = f"Bombas: {self.inventory['Bomba']}"
+        inventory_text = f"Bombas: {self.inventory['Bomba']} Diamante: {self.inventory['Diamante']} Pocion: {self.inventory['Pocion']} Armadura: {self.inventory['Armadura']}"
         inventory_surface = self.game.font.render(inventory_text, True, (255, 255, 255))
         inventory_rect = inventory_surface.get_rect(topleft=(10, 40))
         self.game.screen.blit(inventory_surface, inventory_rect)

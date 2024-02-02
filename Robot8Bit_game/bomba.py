@@ -20,7 +20,6 @@ class Bomba(pygame.sprite.Sprite):
 
 
     def update(self, *args):
-        # Verifica la colisión con el jugador
         hits = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
         for hit in hits:
             if isinstance(hit, Player):
