@@ -24,4 +24,4 @@ class Pocion(pygame.sprite.Sprite):
             if isinstance(hit, Player):
                 self.game.all_sprites.remove(self)
                 self.game.block.remove(self)
-                hit.inventory["Pocion"] += 1
+                self.game.player.current_health = 300

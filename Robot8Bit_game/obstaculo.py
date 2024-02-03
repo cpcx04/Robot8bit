@@ -22,4 +22,7 @@ class Obstaculo(Tile):
 class Muro(Tile):
     def __init__(self, game, x, y):
         super().__init__(game, x, y, "hielo.jpg")
+class Toxic(Tile):
+    def __init__(self, game, x, y):
+        super().__init__(game, x, y, "toxic.jpg")
 

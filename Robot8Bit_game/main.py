@@ -55,6 +55,10 @@ class Game:
                     muro = Muro(self, x, y)
                     self.block.add(muro)
                     self.all_sprites.add(muro)
+                elif char == "T":
+                    toxico = Toxic(self,x,y)
+                    self.block.add(toxico)
+                    self.all_sprites.add(toxico)
                 elif char == "E":
                     Tile(self, x, y, "arena.jpg")
         num_bombas = 1
@@ -62,10 +66,10 @@ class Game:
             random_position = random.choice(bomb_positions)
             bomb_positions.remove(random_position)
             x, y = random_position
-            bomba = Bomba(self, 10, x, y)
+            bomba = Bomba(self, x, y)
             self.block.add(bomba)
             self.all_sprites.add(bomba)
-        num_diamantes = 1
+        num_diamantes = 4
         for _ in range(min(num_diamantes, len(bomb_positions))):
             random_position = random.choice(bomb_positions)
             bomb_positions.remove(random_position)
@@ -82,7 +86,7 @@ class Game:
             armadura = Armadura(self, x, y)
             self.block.add(armadura)
             self.all_sprites.add(armadura)
-        num_pociones = 1
+        num_pociones = 2
         for _ in range(min(num_pociones, len(bomb_positions))):
             random_position = random.choice(bomb_positions)
             bomb_positions.remove(random_position)
@@ -109,7 +113,39 @@ class Game:
 
     def draw(self):
         self.all_sprites.draw(self.screen)
+        self.draw_inventory()
         pygame.display.flip()
+
+    def draw_inventory(self):
+        bomba_img = pygame.image.load("images/bomba.png")
+        bomba_img = pygame.transform.scale(bomba_img, (44, 44))
+        armadura_img = pygame.image.load("images/armadura.png")
+        armadura_img = pygame.transform.scale(armadura_img, (44, 44))
+        diamante_img = pygame.image.load("images/diamante.png")
+        diamante_img = pygame.transform.scale(diamante_img, (44, 44))
+
+
+        self.screen.blit(bomba_img, (400, 10))
+        self.screen.blit(armadura_img, (500, 10))
+        self.screen.blit(diamante_img, (600, 10))
+
+
+        bomba_count_text = str(self.player.inventory['Bomba'])
+        armadura_count_text = str(self.player.inventory['Armadura'])
+        diamante_count_text = str(self.player.inventory['Diamante'])
+
+
+        count_font = pygame.font.Font(None, 36)
+
+        bomba_count_surface = count_font.render(bomba_count_text, True, (255, 255, 255))
+        armadura_count_surface = count_font.render(armadura_count_text, True, (255, 255, 255))
+        diamante_count_surface = count_font.render(diamante_count_text, True, (255, 255, 255))
+
+
+        self.screen.blit(bomba_count_surface, (400 + 50, 25))
+        self.screen.blit(armadura_count_surface, (500 + 50, 25))
+        self.screen.blit(diamante_count_surface, (600 + 50, 25))
+
 
     def game_over(self):
         self.playing = False
@@ -212,10 +248,12 @@ if __name__ == "__main__":
                     game.playing = False
                 elif event.key == pygame.K_b:
                     if game.player.inventory["Bomba"] > 0:
-                        bomba = Bomba(game, 10, game.player.rect.x, game.player.rect.y)
-                        game.block.add(bomba)
-                        game.all_sprites.add(bomba)
-                        game.player.inventory["Bomba"] -= 1
+                        game.player.explotar_bomba()
+                        game.player.explotar = True
+                elif event.key == pygame.K_t:
+                    if game.player.inventory["Armadura"] > 0:
+                        game.player.traje_agua = not game.player.traje_agua
+                        game.player.poner_traje_agua()
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     game.player.mover_derecha = False
@@ -225,6 +263,9 @@ if __name__ == "__main__":
                     game.player.mover_arriba = False
                 elif event.key == pygame.K_DOWN:
                     game.player.mover_abajo = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    game.player.poner_traje_agua()
 
         if not game.playing:
             game.intro_screen()
