@@ -4,7 +4,7 @@ import random
 import pygame
 
 from armadura import Armadura
-from bomba import  Bomba
+from bomba import Bomba
 from diamantes import Diamante
 from obstaculo import *
 from player import Player
@@ -50,50 +50,36 @@ class Game:
                 elif char == "B":
                     obstaculo = Obstaculo(self, x, y)
                     self.block.add(obstaculo)
-                    self.all_sprites.add(obstaculo)
                 elif char == "O":
                     muro = Muro(self, x, y)
                     self.block.add(muro)
-                    self.all_sprites.add(muro)
                 elif char == "T":
-                    toxico = Toxic(self,x,y)
+                    toxico = Toxic(self, x, y)
                     self.block.add(toxico)
-                    self.all_sprites.add(toxico)
                 elif char == "E":
                     Tile(self, x, y, "arena.jpg")
-        num_bombas = 1
-        for _ in range(min(num_bombas, len(bomb_positions))):
-            random_position = random.choice(bomb_positions)
-            bomb_positions.remove(random_position)
-            x, y = random_position
-            bomba = Bomba(self, x, y)
-            self.block.add(bomba)
-            self.all_sprites.add(bomba)
-        num_diamantes = 4
-        for _ in range(min(num_diamantes, len(bomb_positions))):
-            random_position = random.choice(bomb_positions)
-            bomb_positions.remove(random_position)
-            x, y = random_position
-            diamante = Diamante(self, x, y)
-            self.block.add(diamante)
-            self.all_sprites.add(diamante)
 
-        num_armaduras = 1
-        for _ in range(min(num_armaduras, len(bomb_positions))):
-            random_position = random.choice(bomb_positions)
-            bomb_positions.remove(random_position)
-            x, y = random_position
-            armadura = Armadura(self, x, y)
-            self.block.add(armadura)
-            self.all_sprites.add(armadura)
-        num_pociones = 2
-        for _ in range(min(num_pociones, len(bomb_positions))):
-            random_position = random.choice(bomb_positions)
-            bomb_positions.remove(random_position)
-            x, y = random_position
-            pocion = Pocion(self, x, y)
-            self.block.add(pocion)
-            self.all_sprites.add(pocion)
+        object_counts = {"Bomba": 1, "Diamante": 4, "Armadura": 1, "Pocion": 2}
+
+        for object_type, count in object_counts.items():
+            for _ in range(min(count, len(bomb_positions))):
+                random_position = random.choice(bomb_positions)
+                bomb_positions.remove(random_position)
+                x, y = random_position
+
+                if object_type == "Bomba":
+                    new_object = Bomba(self, x, y)
+                elif object_type == "Diamante":
+                    new_object = Diamante(self, x, y)
+                    print("Diamante generado")
+                elif object_type == "Armadura":
+                    new_object = Armadura(self, x, y)
+                elif object_type == "Pocion":
+                    new_object = Pocion(self, x, y)
+
+                self.block.add(new_object)
+                self.all_sprites.add(new_object)
+
     def new(self):
         self.playing = True
         self.intro_music_played = False
@@ -124,16 +110,13 @@ class Game:
         diamante_img = pygame.image.load("images/diamante.png")
         diamante_img = pygame.transform.scale(diamante_img, (44, 44))
 
-
         self.screen.blit(bomba_img, (400, 10))
         self.screen.blit(armadura_img, (500, 10))
         self.screen.blit(diamante_img, (600, 10))
 
-
         bomba_count_text = str(self.player.inventory['Bomba'])
         armadura_count_text = str(self.player.inventory['Armadura'])
         diamante_count_text = str(self.player.inventory['Diamante'])
-
 
         count_font = pygame.font.Font(None, 36)
 
@@ -141,11 +124,9 @@ class Game:
         armadura_count_surface = count_font.render(armadura_count_text, True, (255, 255, 255))
         diamante_count_surface = count_font.render(diamante_count_text, True, (255, 255, 255))
 
-
         self.screen.blit(bomba_count_surface, (400 + 50, 25))
         self.screen.blit(armadura_count_surface, (500 + 50, 25))
         self.screen.blit(diamante_count_surface, (600 + 50, 25))
-
 
     def game_over(self):
         self.playing = False
@@ -175,10 +156,12 @@ class Game:
     def reset_game(self):
         self.intro_music_played = False
 
+        self.all_sprites.remove()
         self.all_sprites.empty()
+        self.block.remove()
         self.block.empty()
-        self.player_layer.empty()
-        self.createTileMap()
+        self.player_layer.remove()
+        self.player = None
         pygame.mixer.music.stop()
         pygame.mixer.music.load("sonidos/level1.mp3")
         pygame.mixer.music.play(-1)

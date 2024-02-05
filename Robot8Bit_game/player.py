@@ -217,14 +217,15 @@ class Player(pygame.sprite.Sprite):
             self.explotar = True
             current_x, current_y = self.rect.x, self.rect.y
             explosion_range = 50
-            for x in range(current_x - explosion_range, current_x + explosion_range + 1, TILESIZE):
+            for x in range(current_y - explosion_range, current_x + explosion_range + 1, TILESIZE):
                 for y in range(current_y - explosion_range, current_y + explosion_range + 1, TILESIZE):
-                    hits = pygame.sprite.spritecollide(self, self.game.block, False)
+                    hits = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
 
                     for hit in hits:
-                        if isinstance(hit, Obstaculo) and hit.rect.collidepoint(x, y):
+                        if isinstance(hit, Muro) and hit.rect.collidepoint(x, y):
                             self.game.all_sprites.remove(hit)
                             self.game.block.remove(hit)
+                            self.game.block.empty()
 
 
 
