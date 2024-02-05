@@ -34,6 +34,14 @@ Este proyecto es un juego implementado en Python con el uso de la biblioteca Pyg
 - 'T': Cambiar entre el traje de agua.
 - Otros controles específicos según las características del juego.
 
+## Puntuación
+
+- +100 por diamante recogido.
+- -2 por bomba utilizada.
+- -1 por salud perdida.
+
+
+
 ## Características
 
 - Laberinto generado a partir de un archivo de mapa.
