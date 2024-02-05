@@ -63,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.image = player_image_stanBy
         self.rect = self.image.get_rect()
         self.rect.x = x
+        self.score = 0
         self.rect.y = y
         self.healt_bar = Healthbar(10,10,300,20,300)
         self.game.all_sprites.add(self.healt_bar)
@@ -91,9 +92,18 @@ class Player(pygame.sprite.Sprite):
         self.game.screen.blit(inventory_surface, inventory_rect)
         self.collide_bomba()
         self.collide_diamante()
+        self.handle_scoring()
         self.collide_armadura()
         self.collide_pocion()
 
+    def handle_scoring(self):
+        self.score -= round((300 - self.current_health) * 0.1)
+
+        if self.explotar:
+            self.score -= 2
+            self.explotar = False
+        self.score -= round(1 / 60)
+        self.score = max(0, self.score)
     def mover(self):
         
         if self.mover_derecha:
@@ -139,22 +149,34 @@ class Player(pygame.sprite.Sprite):
                     if self.mover_derecha:
                         self.rect.right = hit.rect.left
                         self.current_health -= 30
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.mover_derecha = False
                         self.image = player_image_left_stop
                     elif self.mover_izquierda:
                         self.rect.left = hit.rect.right
                         self.current_health -= 30
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.mover_izquierda = False
                         self.image = player_image_right_stop
                 elif direction == "y":
                     if self.mover_abajo:
                         self.rect.bottom = hit.rect.top
                         self.current_health -= 30
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.mover_abajo = False
                         self.image = player_image_up_stop
                     elif self.mover_arriba:
                         self.rect.top = hit.rect.bottom
                         self.current_health -= 30
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.mover_arriba = False
                         self.image = player_image_bottom_stop
             elif isinstance(hit, Toxic):
@@ -162,9 +184,15 @@ class Player(pygame.sprite.Sprite):
                     self.game.game_over()
                 if direction == "x" and self.mover_derecha or self.mover_izquierda:
                     if not self.traje_agua:
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.current_health -= 1
                 elif direction == "y" and self.mover_abajo or self.mover_arriba:
                     if not self.traje_agua:
+                        explosion_sound = pygame.mixer.Sound("sonidos/damage.mp3")
+                        pygame.mixer.music.set_volume(0.5)
+                        explosion_sound.play()
                         self.current_health -= 1
 
 
@@ -184,7 +212,14 @@ class Player(pygame.sprite.Sprite):
             if isinstance(hit, Diamante):
                 self.game.all_sprites.remove(hit)
                 self.game.block.remove(hit)
+                explosion_sound = pygame.mixer.Sound("sonidos/diamon.mp3")
+                pygame.mixer.music.set_volume(0.3)
+                explosion_sound.play()
                 self.inventory["Diamante"] += 1
+                self.score += 100
+
+                if self.inventory["Diamante"] == 4:
+                    self.game.show_victory_screen(self.score)
 
     def collide_armadura(self):
         from armadura import Armadura
@@ -201,7 +236,11 @@ class Player(pygame.sprite.Sprite):
         for hit in hits:
             if isinstance(hit, Pocion) and self.inventory["Pocion"] > 0:
                 self.current_health = 300
+                explosion_sound = pygame.mixer.Sound("sonidos/life.mp3")
+                pygame.mixer.music.set_volume(0.5)
+                explosion_sound.play()
                 self.inventory["Pocion"] -= 1
+
 
     def poner_traje_agua(self):
         if self.traje_agua == True:
@@ -210,24 +249,40 @@ class Player(pygame.sprite.Sprite):
             self.inventory["Armadura"] > 0
             self.inventory["Armadura"] -= 1
 
+    # ...
+
     def explotar_bomba(self):
-        from bomba import Bomba
+        from obstaculo import Tile  # Asegúrate de importar la clase Tile desde donde corresponda
+
         if self.inventory["Bomba"] > 0:
             self.inventory["Bomba"] -= 1
             self.explotar = True
             current_x, current_y = self.rect.x, self.rect.y
             explosion_range = 50
-            for x in range(current_y - explosion_range, current_x + explosion_range + 1, TILESIZE):
-                for y in range(current_y - explosion_range, current_y + explosion_range + 1, TILESIZE):
-                    hits = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
 
-                    for hit in hits:
-                        if isinstance(hit, Muro) and hit.rect.collidepoint(x, y):
-                            self.game.all_sprites.remove(hit)
-                            self.game.block.remove(hit)
-                            self.game.block.empty()
+            # Lista para almacenar las posiciones de los bloques eliminados
+            blocks_positions = []
 
+            for sprite in self.game.all_sprites:
+                if isinstance(sprite, Muro) and sprite.rect.colliderect(
+                        self.rect.inflate(explosion_range, explosion_range)):
+                    blocks_positions.append((sprite.rect.x, sprite.rect.y))
 
+            # Elimina los bloques
+            for sprite in self.game.all_sprites:
+                if isinstance(sprite, Muro) and sprite.rect.colliderect(
+                        self.rect.inflate(explosion_range, explosion_range)):
+                    self.game.all_sprites.remove(sprite)
+                    self.game.block.remove(sprite)
+
+            # Agrega nuevos Tiles en las posiciones de los bloques eliminados
+            for pos in blocks_positions:
+                x, y = pos
+                Tile(self.game, x, y, "arena.jpg")
+
+            explosion_sound = pygame.mixer.Sound("sonidos/explosion.mp3")
+            explosion_sound.play()
+        pygame.display.flip()
 
     def otorgar_vida_maxima(self):
         self.current_health = self.max_health

@@ -21,9 +21,11 @@ class Game:
         self.font = pygame.font.Font("font/AncientModernTales-a7Po.ttf", 38)
         self.running = True
         self.playing = False
+        self.blocks_with_positions = []
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.block = pygame.sprite.LayeredUpdates()
         self.player_layer = pygame.sprite.LayeredUpdates()
+        self.block = pygame.sprite.Group()
         self.player = None
         self.intro_music_played = False
 
@@ -47,19 +49,22 @@ class Game:
                 elif char == ".":
                     Tile(self, x, y, "arena.jpg")
                     bomb_positions.append((x, y))
-                elif char == "B":
-                    obstaculo = Obstaculo(self, x, y)
-                    self.block.add(obstaculo)
-                elif char == "O":
-                    muro = Muro(self, x, y)
-                    self.block.add(muro)
-                elif char == "T":
-                    toxico = Toxic(self, x, y)
-                    self.block.add(toxico)
+                elif char in ["B", "O", "T"]:
+                    block = (char, x, y)  # Guardar el tipo de bloque y su posición
+                    self.blocks_with_positions.append(block)
+                    if char == "B":
+                        obstaculo = Obstaculo(self, x, y)
+                        self.block.add(obstaculo)
+                    elif char == "O":
+                        muro = Muro(self, x, y)
+                        self.block.add(muro)
+                    elif char == "T":
+                        toxico = Toxic(self, x, y)
+                        self.block.add(toxico)
                 elif char == "E":
                     Tile(self, x, y, "arena.jpg")
 
-        object_counts = {"Bomba": 1, "Diamante": 4, "Armadura": 1, "Pocion": 2}
+        object_counts = {"Bomba": 4, "Diamante": 4, "Armadura": 2, "Pocion": 3}
 
         for object_type, count in object_counts.items():
             for _ in range(min(count, len(bomb_positions))):
@@ -86,6 +91,7 @@ class Game:
         self.createTileMap()
         pygame.mixer.music.stop()
         pygame.mixer.music.load("sonidos/level1.mp3")
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1)
 
     def update(self):
@@ -97,7 +103,16 @@ class Game:
                 self.player.update()
                 self.all_sprites.update(self.player.current_health)
 
+    def update_victory_screen(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+
+        pygame.display.flip()
+        self.clock.tick(60)
+
     def draw(self):
+        self.block.draw(self.screen)
         self.all_sprites.draw(self.screen)
         self.draw_inventory()
         pygame.display.flip()
@@ -128,6 +143,48 @@ class Game:
         self.screen.blit(armadura_count_surface, (500 + 50, 25))
         self.screen.blit(diamante_count_surface, (600 + 50, 25))
 
+    def show_victory_screen(self, score):
+        self.playing = False
+
+        # Fondo redondo para los textos
+        text_background = pygame.image.load("images/victory.jpg").convert()
+        text_background_rect = text_background.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
+        self.screen.blit(text_background, text_background_rect)
+
+        # Mensaje de victoria
+        victory_message = self.font.render("¡Has ganado!", True, (255, 255, 255))
+        victory_rect = victory_message.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2 - 100))
+        self.screen.blit(victory_message, victory_rect)
+
+        # Puntuación
+        score_text = self.font.render(f"Puntuación: {score}", True, (255, 255, 255))
+        score_rect = score_text.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2 - 50))
+        self.screen.blit(score_text, score_rect)
+
+        # Mensaje adicional
+        message = self.font.render("Presiona cualquier tecla para volver al menú", True, (255, 255, 255))
+        message_rect = message.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
+        self.screen.blit(message, message_rect)
+
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load("sonidos/winner.mp3")
+        pygame.mixer.music.set_volume(1.0)
+        pygame.mixer.music.play(-1)
+        pygame.display.flip()
+
+        # Espera a que el jugador presione una tecla
+        key_pressed = False
+        while not key_pressed:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    key_pressed = True
+                elif event.type == pygame.KEYDOWN:
+                    self.reset_game()
+                    self.intro_screen()
+                    key_pressed = True
+
+            self.clock.tick(60)
     def game_over(self):
         self.playing = False
 
