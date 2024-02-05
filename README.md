@@ -1,4 +1,4 @@
-# Robot8bit
+# 🤖 Robot8bit
 
 ## Descripción
 
@@ -49,10 +49,7 @@ Este juego fue desarrollado por Cristian Pulido Cabello como proyecto escolar. L
 
 Este proyecto se distribuye bajo la licencia [GPL-3.0](https://github.com/cpcx04/Robot8bit/blob/main/LICENSE).
 
-¡Diviértete jugando!
-
 ## Información extra
 [![GitHub contributors](https://img.shields.io/github/contributors/cpcx04/Robot8bit.svg)](https://github.com/cpcx04/Robot8bit/graphs/contributors)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/cpcx04/Robot8bit.svg)](https://github.com/cpcx04/Robot8bit/commits)
 [![GitHub languages](https://img.shields.io/github/languages/top/cpcx04/Robot8bit.svg)](https://github.com/cpcx04/Robot8bit)
-
